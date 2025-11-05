@@ -44,6 +44,7 @@
 		</PackageReference>
 		<PackageReference Include="SkiaSharp" Version="3.119.1" />
 		<PackageReference Include="Svg.Skia" Version="3.2.1" />
+		<PackageReference Include="Velopack" Version="0.0.1369-g1d5c984" />
 		<PackageReference Include="WebView.Avalonia" Version="11.0.0.1" />
 		<PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
