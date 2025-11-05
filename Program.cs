@@ -22,6 +22,7 @@ using Avalonia;
 using Avalonia.WebView.Desktop;
 using MermaidPad.Services.Platforms;
 using ReactiveUI.Avalonia;
+using Velopack;
 
 namespace MermaidPad;
 
@@ -36,6 +37,9 @@ internal static class Program
         // CRITICAL: Check platform compatibility FIRST, before any other initialization
         // This attempts to prevent crashes from architecture mismatches (e.g., x64 app on arm64 via Rosetta)
         PlatformCompatibilityChecker.CheckCompatibility();
+ 
+        //Run this first to support auto-updates - to do
+        VelopackApp.Build().Run();
 
         // If we get here, platform compatibility is OK
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

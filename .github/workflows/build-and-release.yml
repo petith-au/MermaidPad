@@ -72,6 +72,10 @@ jobs:
             os: ubuntu-latest
             rid: linux-x64
             extension: ''
+          - name: Linux ARM64
+            os: ubuntu-latest
+            rid: linux-arm64
+            extension: ''
           - name: macOS x64
             os: macos-latest
             rid: osx-x64
@@ -94,7 +98,7 @@ jobs:
         run: dotnet restore MermaidPad.csproj
 
       - name: Publish
-        run: dotnet publish MermaidPad.csproj -c Release -r ${{ matrix.rid }} -o ./publish -p:Version=${{ needs.get-version.outputs.version }} -p:AssemblyVersion=${{ needs.get-version.outputs.version }} -p:FileVersion=${{ needs.get-version.outputs.version }}
+        run: dotnet publish MermaidPad.csproj -c Release -r ${{ matrix.rid }} -o ./publish -p:Version=${{ needs.get-version.outputs.version }} -p:AssemblyVersion=${{ needs.get-version.outputs.version }} -p:FileVersion=${{ needs.get-version.outputs.version }} --self-contained true
       
       # # Add ad-hoc code signing for macOS binaries
       # - name: Ad-hoc Sign macOS Binary
@@ -154,7 +158,7 @@ jobs:
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ZIP_NAME }}
           path: ./publish/${{ env.ZIP_NAME }}
@@ -178,30 +182,41 @@ jobs:
 
       # Download non-macOS build artifacts
       - name: Download non-macOS build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v5
         with:
           path: ./artifacts
 
       # Download macOS .app bundle zip (x64)
       - name: Download macOS .app bundle zip (x64)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v5
         with:
           name: MermaidPad-${{ needs.get-version.outputs.version }}-osx-x64.app.zip
           path: ./artifacts-app
 
       # Download macOS .app bundle zip (arm64)
       - name: Download macOS .app bundle zip (arm64)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v5
         with:
           name: MermaidPad-${{ needs.get-version.outputs.version }}-osx-arm64.app.zip
           path: ./artifacts-app
           
       # Download macOS universal DMG
       - name: Download macOS universal DMG
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v5
         with:
           name: MermaidPad-${{ needs.get-version.outputs.version }}-macos-universal.dmg
           path: ./artifacts-dmg
+
+      # Download and publish Windows installer and update deltas
+      - name: Package Windows Installer + upload
+        run: |
+          dotnet tool install -g vpk
+          vpk download github --repoUrl https://github.com/${{ github.repository }} -c $Channel
+          vpk pack -u $Package_Name -v ${{ needs.get-version.outputs.version }} -p publish -c $Channel -f webview2
+          #vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "$Package_Name-${{ needs.get-version.outputs.version }}" --tag v${{ needs.get-version.outputs.version }} -c $Channel
+          env: 
+          Package_Name: MermaidPad
+          Channel: win-x64
 
       - name: Create or update tag for manual runs
         if: github.event_name == 'workflow_dispatch'
@@ -267,8 +282,7 @@ jobs:
 
             - #### Linux
             - **x64**: `MermaidPad-${{ needs.get-version.outputs.version }}-linux-x64.zip`
-            - **arm64**: Not supported (CefGlue limitation - see [here](https://github.com/OutSystems/CefGlue/blob/main/LINUX.md#arm64-issues))
-
+            - **ARM64**: `MermaidPad-${{ needs.get-version.outputs.version }}-linux-arm64.zip`
 
             Extract, make executable (`chmod +x MermaidPad`), and run `./MermaidPad`
 
