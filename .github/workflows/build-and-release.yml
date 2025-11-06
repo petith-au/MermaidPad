@@ -98,7 +98,7 @@ jobs:
         run: dotnet restore MermaidPad.csproj
 
       - name: Publish
-        run: dotnet publish MermaidPad.csproj -c Release -r ${{ matrix.rid }} -o ./publish -p:Version=${{ needs.get-version.outputs.version }} -p:AssemblyVersion=${{ needs.get-version.outputs.version }} -p:FileVersion=${{ needs.get-version.outputs.version }} --self-contained true
+        run: dotnet publish MermaidPad.csproj -c Release -r ${{ matrix.rid }} -o ./publish -p:Version=${{ needs.get-version.outputs.version }} -p:AssemblyVersion=${{ needs.get-version.outputs.version }} -p:FileVersion=${{ needs.get-version.outputs.version }} 
       
       # # Add ad-hoc code signing for macOS binaries
       # - name: Ad-hoc Sign macOS Binary
